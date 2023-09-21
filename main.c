@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 23:12:51 by root              #+#    #+#             */
-/*   Updated: 2023/09/12 20:59:56 by root             ###   ########.fr       */
+/*   Updated: 2023/09/21 11:19:05 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,11 +92,12 @@ int	main(int argc, char *argv[])
 	}
 	else
 	{
+		wait(NULL);
 		close(fildes[1]);
+		args = ft_split(argv[2], ' ');
+		path = malloc(ft_strlen(args[0]) + ft_strlen("/bin/") + 1);
 		if (fork() == 0)
 		{
-			args = ft_split(argv[2], ' ');
-			path = malloc(ft_strlen(args[0]) + ft_strlen("/bin/") + 1);
 			if (!path)
 				return (-1);
 			strcpy(path, "/bin/");
@@ -110,9 +111,8 @@ int	main(int argc, char *argv[])
 		}
 		else
 		{
+			wait(NULL);
 			close(fildes[0]);
-			wait(NULL);
-			wait(NULL);
 		}
 	}
 }
