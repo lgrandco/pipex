@@ -24,7 +24,7 @@ $(LIBFT) :
 	make bonus -C $(LIBFT_PATH)
 
 $(NAME) : $(LIBFT) ${OBJ}
-	$(CC) -o $(NAME) $(LIBFT) ${OBJ}
+	$(CC) -o $(NAME) -g3 -Ilibft $(SRC) $(LIBFT)
 
 bonus : $(NAME)
 
