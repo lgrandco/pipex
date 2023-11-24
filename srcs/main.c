@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: legrandc <legrandc@student.42.fr>          +#+  +:+       +#+        */
+/*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 11:19:32 by legrandc          #+#    #+#             */
-/*   Updated: 2023/11/23 18:12:08 by legrandc         ###   ########.fr       */
+/*   Updated: 2023/11/24 12:50:49 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,9 @@ char	*get_path(char *program, char **env)
 		free(path_tried);
 		paths++;
 	}
-	return (0);
+	ft_putstr_fd(program, STDERR_FILENO);
+	ft_putendl_fd(": command not found\n", STDERR_FILENO);
+	exit(EXIT_FAILURE);
 }
 
 void	write_heredoc(char *end, int fd)
@@ -79,7 +81,7 @@ void	exec_pipe(char *command, char **ev, int is_last, int fd_outfile)
 	}
 	if (dup2(fildes[0], STDIN_FILENO) == -1 || close(fildes[0]) == -1
 		|| close(fildes[1]) == -1)
-		exit(EXIT_FAILURE);
+		perror("close");
 }
 
 int	main(int ac, char **av, char **ev)
@@ -91,17 +93,20 @@ int	main(int ac, char **av, char **ev)
 		exit(EXIT_FAILURE);
 	if (!strcmp(av[1], "here_doc"))
 	{
-		fd_infile = open("/tmp/here_doc", O_TRUNC | O_RDWR | O_CREAT, 0644);
+		fd_infile = open("/tmp/here_doc", O_TRUNC | O_RDWR | O_CREAT, 0600);
 		write_heredoc(av[2], fd_infile);
-		fd_infile = open("/tmp/here_doc", O_WRONLY, 0644);
-		fd_outfile = open(av[ac - 1], O_WRONLY | O_TRUNC | O_CREAT, 0644);
+		// close(fd_infile);
+		fd_infile = open("/tmp/here_doc", O_WRONLY);
+		fd_outfile = open(av[ac - 1], O_WRONLY | O_APPEND | O_CREAT, 0666);
 		av++;
 	}
 	else
 	{
-		fd_infile = open(av[1], O_RDONLY | O_CREAT, 066);
-		fd_outfile = open(av[ac - 1], O_WRONLY | O_TRUNC | O_CREAT, 0644);
+		fd_infile = open(av[1], O_RDONLY);
+		fd_outfile = open(av[ac - 1], O_WRONLY | O_TRUNC | O_CREAT, 0666);
 	}
+	if (fd_infile == -1)
+		perror(av[1]);
 	av++;
 	if (fd_infile == -1 || fd_outfile == -1)
 		return (1);
