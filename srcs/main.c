@@ -6,11 +6,11 @@
 /*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 11:19:32 by legrandc          #+#    #+#             */
-/*   Updated: 2023/11/24 13:27:51 by leo              ###   ########.fr       */
+/*   Updated: 2023/11/24 23:22:37 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "pipex.h"
 
 char	*get_path(char *program, char **env)
 {
@@ -48,7 +48,7 @@ void	write_heredoc(char *end, int fd)
 	{
 		ft_printf("> ");
 		line = get_next_line(0);
-		if (!ft_strncmp(line, end, ft_strlen(line) - 1))
+		if (!ft_strncmp(line, end, ft_strlen(end)))
 			break ;
 		ft_putstr_fd(line, fd);
 		free(line);
@@ -90,13 +90,14 @@ int	main(int ac, char **av, char **ev)
 	int	fd_outfile;
 
 	if (ac < 5)
+	{
+		ft_putstr_fd(ARGS_ERROR, 2);
 		exit(EXIT_FAILURE);
+	}
 	if (!strcmp(av[1], "here_doc"))
 	{
 		fd_infile = open("/tmp/here_doc", O_TRUNC | O_RDWR | O_CREAT, 0600);
 		write_heredoc(av[2], fd_infile);
-		printf("s%d", close(fd_infile));
-		perror("close");
 		fd_infile = open("/tmp/here_doc", O_RDONLY);
 		perror("open");
 		fd_outfile = open(av[ac - 1], O_WRONLY | O_APPEND | O_CREAT, 0666);
