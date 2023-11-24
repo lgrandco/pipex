@@ -6,7 +6,7 @@
 /*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 11:19:32 by legrandc          #+#    #+#             */
-/*   Updated: 2023/11/24 12:50:49 by leo              ###   ########.fr       */
+/*   Updated: 2023/11/24 13:27:51 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,8 +95,10 @@ int	main(int ac, char **av, char **ev)
 	{
 		fd_infile = open("/tmp/here_doc", O_TRUNC | O_RDWR | O_CREAT, 0600);
 		write_heredoc(av[2], fd_infile);
-		// close(fd_infile);
-		fd_infile = open("/tmp/here_doc", O_WRONLY);
+		printf("s%d", close(fd_infile));
+		perror("close");
+		fd_infile = open("/tmp/here_doc", O_RDONLY);
+		perror("open");
 		fd_outfile = open(av[ac - 1], O_WRONLY | O_APPEND | O_CREAT, 0666);
 		av++;
 	}
