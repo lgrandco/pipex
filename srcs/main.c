@@ -6,7 +6,7 @@
 /*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 11:19:32 by legrandc          #+#    #+#             */
-/*   Updated: 2023/11/24 23:22:37 by leo              ###   ########.fr       */
+/*   Updated: 2023/11/26 02:57:52 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,15 +40,17 @@ char	*get_path(char *program, char **env)
 	exit(EXIT_FAILURE);
 }
 
-void	write_heredoc(char *end, int fd)
+void	write_heredoc(char *eof, int fd)
 {
 	char	*line;
+	size_t	eof_len;
 
+	eof_len = ft_strlen(eof);
 	while (1)
 	{
 		ft_printf("> ");
 		line = get_next_line(0);
-		if (!ft_strncmp(line, end, ft_strlen(end)))
+		if (!ft_strncmp(line, eof, eof_len) && line[eof_len] == '\n')
 			break ;
 		ft_putstr_fd(line, fd);
 		free(line);
@@ -56,7 +58,7 @@ void	write_heredoc(char *end, int fd)
 	free(line);
 }
 
-void	exec_pipe(char *command, char **ev, int is_last, int fd_outfile)
+void	exec_pipe(char *command, char **ev, int is_last, t_vars *vars)
 {
 	int		fildes[2];
 	char	**argv;
@@ -68,62 +70,93 @@ void	exec_pipe(char *command, char **ev, int is_last, int fd_outfile)
 		if (!is_last)
 			dup2(fildes[1], STDOUT_FILENO);
 		if (is_last)
-			dup2(fd_outfile, STDOUT_FILENO);
+		{
+			if (vars->is_heredoc)
+				vars->outfile_fd = open(vars->outfile_name,
+						O_WRONLY | O_APPEND | O_CREAT, 0666);
+			else
+				vars->outfile_fd = open(vars->outfile_name,
+						O_WRONLY | O_TRUNC | O_CREAT, 0666);
+			dup2(vars->outfile_fd, STDOUT_FILENO);
+		}
 		argv = ft_split(command, ' ');
-		if (!argv || close(fildes[0]) == -1 || close(fildes[1]) == -1
-			|| close(fd_outfile) == -1)
-			exit(EXIT_FAILURE);
+		if (!argv)
+		{
+			perror("malloc");
+			EXIT_FAILURE;
+		}
+		if (close(fildes[0]) == -1 || close(fildes[1]) == -1)
+			perror("close");
 		path = get_path(argv[0], ev);
 		execve(path, argv, ev);
 		perror(argv[0]);
-		fflush(stderr);
+		free_matrix(argv);
 		exit(EXIT_FAILURE);
 	}
-	if (dup2(fildes[0], STDIN_FILENO) == -1 || close(fildes[0]) == -1
-		|| close(fildes[1]) == -1)
+	dup2(fildes[0], STDIN_FILENO);
+	if (close(fildes[0]) == -1 || close(fildes[1]) == -1)
 		perror("close");
+}
+
+void	get_infile(t_vars *vars)
+{
+	if (vars->is_heredoc)
+	{
+		vars->infile_fd = open(vars->infile_name, O_TRUNC | O_RDWR | O_CREAT,
+				0600);
+		if (vars->infile_fd == -1)
+		{
+			perror("open");
+			exit(EXIT_FAILURE);
+		}
+		write_heredoc(vars->delimiter, vars->infile_fd);
+		close(vars->infile_fd);
+		vars->infile_fd = open(vars->infile_name, O_RDONLY);
+	}
+	else
+		vars->infile_fd = open(vars->infile_name, O_RDONLY);
+	if (vars->infile_fd == -1)
+	{
+		perror(vars->infile_name);
+		exit(EXIT_FAILURE);
+	}
+}
+
+void	init_pipex(int ac, char ***av, t_vars *vars)
+{
+	if (ac < 5 || (!ft_strncmp((*av)[1], "here_doc", ft_strlen("here_doc"))
+			&& ac == 5))
+	{
+		ft_putstr_fd(ARGS_ERROR, STDERR_FILENO);
+		exit(EXIT_FAILURE);
+	}
+	vars->outfile_name = (*av)[ac - 1];
+	if (!ft_strncmp((*av)[1], "here_doc", ft_strlen((*av)[1])))
+	{
+		vars->is_heredoc = 1;
+		vars->infile_name = HEREDOC_LOCATION;
+		vars->delimiter = (*av)[2];
+		(*av)++;
+	}
+	else
+	{
+		vars->infile_name = (*av)[1];
+		vars->is_heredoc = 0;
+	}
+	(*av)++;
 }
 
 int	main(int ac, char **av, char **ev)
 {
-	int	fd_infile;
-	int	fd_outfile;
+	t_vars	vars;
 
-	if (ac < 5)
-	{
-		ft_putstr_fd(ARGS_ERROR, 2);
-		exit(EXIT_FAILURE);
-	}
-	if (!strcmp(av[1], "here_doc"))
-	{
-		fd_infile = open("/tmp/here_doc", O_TRUNC | O_RDWR | O_CREAT, 0600);
-		write_heredoc(av[2], fd_infile);
-		fd_infile = open("/tmp/here_doc", O_RDONLY);
-		perror("open");
-		fd_outfile = open(av[ac - 1], O_WRONLY | O_APPEND | O_CREAT, 0666);
-		av++;
-	}
-	else
-	{
-		fd_infile = open(av[1], O_RDONLY);
-		fd_outfile = open(av[ac - 1], O_WRONLY | O_TRUNC | O_CREAT, 0666);
-	}
-	if (fd_infile == -1)
-		perror(av[1]);
-	av++;
-	if (fd_infile == -1 || fd_outfile == -1)
-		return (1);
-	dup2(fd_infile, STDIN_FILENO);
-	close(fd_infile);
+	init_pipex(ac, &av, &vars);
+	get_infile(&vars);
+	dup2(vars.infile_fd, STDIN_FILENO);
+	close(vars.infile_fd);
 	while (*(++av + 1))
-	{
-		dprintf(2, "[%s]\n\n\n", *av);
-		exec_pipe(*av, ev, *(av + 2) == NULL, fd_outfile);
-	}
-	close(fd_outfile);
+		exec_pipe(*av, ev, *(av + 2) == NULL, &vars);
 	while (ac-- != 3)
-	{
 		wait(NULL);
-	}
 	return (0);
 }
