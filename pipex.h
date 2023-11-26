@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: legrandc <legrandc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 23:12:51 by leo               #+#    #+#             */
-/*   Updated: 2023/11/26 02:04:19 by leo              ###   ########.fr       */
+/*   Updated: 2023/11/26 17:00:51 by legrandc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,11 @@ typedef struct s_vars
 	char	*path;
 	int		is_heredoc;
 	char	*delimiter;
+	size_t	commands_nb;
+	int		fildes[2];
+	t_list	*pids;
+	t_list	*new;
+	int		last_exit_code;
 }			t_vars;
 
 #endif // !PIPEX_H

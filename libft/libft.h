@@ -6,7 +6,7 @@
 /*   By: legrandc <legrandc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 17:55:36 by legrandc          #+#    #+#             */
-/*   Updated: 2023/11/23 13:52:38 by legrandc         ###   ########.fr       */
+/*   Updated: 2023/11/26 15:50:05 by legrandc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 typedef struct s_list
 {
 	void			*content;
+	int				n;
 	struct s_list	*next;
 }					t_list;
 
@@ -55,7 +56,7 @@ void				ft_lstadd_back(t_list **lst, t_list *new);
 t_list				*ft_lstlast(t_list *lst);
 int					ft_lstsize(t_list *lst);
 void				ft_lstadd_front(t_list **lst, t_list *new);
-t_list				*ft_lstnew(void *content);
+t_list				*ft_lstnew(void *content, int n);
 void				ft_putstr_fd(char *s, int fd);
 void				ft_putnbr_fd(int n, int fd);
 void				ft_putendl_fd(char *s, int fd);
