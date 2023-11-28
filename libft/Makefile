@@ -80,11 +80,11 @@ $(NAME): ${OBJ} $(BONUS_OBJ) Makefile libft.h
 bonus: ${NAME}
 
 clean:
-	${RM} ${OBJ} ${BONUS_OBJ}
+	@ ${RM} ${OBJ} ${BONUS_OBJ}
 
 
 fclean: clean
-	${RM} ${NAME}
+	@ ${RM} ${NAME}
 
 
 re: fclean all

@@ -6,7 +6,7 @@
 /*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 17:55:36 by legrandc          #+#    #+#             */
-/*   Updated: 2023/11/27 22:33:30 by leo              ###   ########.fr       */
+/*   Updated: 2023/11/28 14:55:39 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ typedef struct s_list
 }					t_list;
 
 /* FUNCTIONS */
+int					ft_strcmp(const char *s1, const char *s2);
 char				*ft_strjoin3(char const *s1, char const *s2,
 						char const *s3);
 char				*get_next_line(int fd);
