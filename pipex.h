@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: legrandc <legrandc@student.42.fr>          +#+  +:+       +#+        */
+/*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 23:12:51 by leo               #+#    #+#             */
-/*   Updated: 2023/11/26 17:00:51 by legrandc         ###   ########.fr       */
+/*   Updated: 2023/11/28 01:01:47 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # define ARGS_ERROR \
 	"Usage: ./pipex (INFILE\
  || here_doc LIMITER) cmd1 ... cmdn OUTFILE\n"
-# define HEREDOC_LOCATION "/tmp/heredoc"
+# define HERE_DOC_ERR "warning : here-document delimited by end-of-file (wanted `EOF')\n"
 
 typedef struct s_vars
 {
@@ -29,9 +29,12 @@ typedef struct s_vars
 	char	*delimiter;
 	size_t	commands_nb;
 	int		fildes[2];
-	t_list	*pids;
-	t_list	*new;
+	int		wstatus;
 	int		last_exit_code;
+	char	**env;
+	int		here_docfd[2];
+	int		last_pid;
+
 }			t_vars;
 
 #endif // !PIPEX_H

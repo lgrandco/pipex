@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: legrandc <legrandc@student.42.fr>          +#+  +:+       +#+        */
+/*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 17:55:36 by legrandc          #+#    #+#             */
-/*   Updated: 2023/11/26 15:50:05 by legrandc         ###   ########.fr       */
+/*   Updated: 2023/11/27 22:33:30 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "get_next_line_bonus.h"
 # include <bsd/string.h>
+# include <errno.h>
 # include <fcntl.h>
 # include <limits.h>
 # include <stdarg.h>
@@ -39,6 +40,8 @@ typedef struct s_list
 }					t_list;
 
 /* FUNCTIONS */
+char				*ft_strjoin3(char const *s1, char const *s2,
+						char const *s3);
 char				*get_next_line(int fd);
 void				free_matrix(char **t);
 unsigned int		ft_abs(int n);

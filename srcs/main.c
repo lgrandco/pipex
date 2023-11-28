@@ -3,49 +3,55 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: legrandc <legrandc@student.42.fr>          +#+  +:+       +#+        */
+/*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 11:19:32 by legrandc          #+#    #+#             */
-/*   Updated: 2023/11/26 18:44:03 by legrandc         ###   ########.fr       */
+/*   Updated: 2023/11/28 01:54:12 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-char	*get_path(char *program, char **env)
+char	*get_path(char *command, char **env)
 {
-	char	*path_tried;
 	char	**paths;
 	char	**var;
 	char	*final_path;
 	size_t	i;
 
+	paths = NULL;
+	if (!command)
+		command = "";
+	if (ft_strchr(command, '/'))
+		return (ft_strdup(command));
 	while (*env)
 	{
 		var = ft_split(*env, '=');
-		if (!strcmp("PATH", var[0]))
+		if (var[0] && var[1] && !strcmp("PATH", var[0]))
+		{
+			paths = ft_split(var[1], ':');
+			free_matrix(var);
 			break ;
-		else
-			env++;
+		}
+		env++;
 		free_matrix(var);
 	}
-	paths = ft_split(var[1], ':');
 	i = 0;
-	free_matrix(var);
-	while (paths[i])
+	while (*command != '\0' && *command != '.' && paths && paths[i])
 	{
-		path_tried = ft_strjoin(paths[i], "/");
-		final_path = ft_strjoin(path_tried, program);
-		free(path_tried);
-		if (access(final_path, X_OK) == 0)
+		final_path = ft_strjoin3(paths[i], "/", command);
+		if (access(final_path, F_OK) == 0)
+		{
+			free_matrix(paths);
 			return (final_path);
+		}
 		free(final_path);
 		i++;
 	}
 	free_matrix(paths);
-	ft_putstr_fd(program, STDERR_FILENO);
+	ft_putstr_fd(command, STDERR_FILENO);
 	ft_putstr_fd(": command not found\n", STDERR_FILENO);
-	exit(127);
+	return (NULL);
 }
 
 void	write_heredoc(char *eof, int fd)
@@ -58,6 +64,8 @@ void	write_heredoc(char *eof, int fd)
 	{
 		ft_printf("> ");
 		line = get_next_line(0);
+		if (!line)
+			ft_putstr_fd(HERE_DOC_ERR, STDERR_FILENO);
 		if (!ft_strncmp(line, eof, eof_len) && line[eof_len] == '\n')
 			break ;
 		ft_putstr_fd(line, fd);
@@ -66,59 +74,14 @@ void	write_heredoc(char *eof, int fd)
 	free(line);
 }
 
-void	exec_child(char *command, char **ev, int is_last, t_vars *vars)
-{
-	char	**argv;
-	char	*path;
-
-	if (!is_last)
-		dup2(vars->fildes[1], STDOUT_FILENO);
-	else
-	{
-		if (vars->is_heredoc)
-			vars->outfile_fd = open(vars->outfile_name,
-					O_WRONLY | O_APPEND | O_CREAT, 0666);
-		else
-			vars->outfile_fd = open(vars->outfile_name,
-					O_WRONLY | O_TRUNC | O_CREAT, 0666);
-		if (vars->outfile_fd == -1)
-		{
-			perror(vars->outfile_name);
-			exit(EXIT_FAILURE);
-		}
-		dup2(vars->outfile_fd, STDOUT_FILENO);
-		close(vars->outfile_fd);
-		if (vars->is_heredoc)
-			unlink(vars->infile_name);
-	}
-	// ft_putstr_fd("fwefa\n", 2);
-	argv = ft_split(command, ' ');
-	if (!argv)
-		exit(EXIT_FAILURE);
-	execve(path, argv, ev);
-	if (close(vars->fildes[0]) == -1 || close(vars->fildes[1]) == -1)
-		perror("close");
-	free_matrix(argv);
-	path = get_path(argv[0], ev);
-	free(path);
-	perror(argv[0]);
-	exit(EXIT_FAILURE);
-}
-
 void	get_infile(t_vars *vars)
 {
 	if (vars->is_heredoc)
 	{
-		vars->infile_fd = open(vars->infile_name, O_TRUNC | O_RDWR | O_CREAT,
-				0600);
-		if (vars->infile_fd == -1)
-		{
-			perror(vars->infile_name);
-			exit(EXIT_FAILURE);
-		}
-		write_heredoc(vars->delimiter, vars->infile_fd);
-		close(vars->infile_fd);
-		vars->infile_fd = open(vars->infile_name, O_RDONLY);
+		pipe(vars->here_docfd);
+		write_heredoc(vars->delimiter, vars->here_docfd[1]);
+		close(vars->here_docfd[1]);
+		vars->infile_fd = vars->here_docfd[0];
 	}
 	else
 		vars->infile_fd = open(vars->infile_name, O_RDONLY);
@@ -131,7 +94,55 @@ void	get_infile(t_vars *vars)
 	close(vars->infile_fd);
 }
 
-void	init_pipex(int ac, char ***av, t_vars *vars)
+void	exec_child(char *command, int is_first, int is_last, t_vars *vars)
+{
+	char	**args;
+	char	*path;
+
+	if (is_first)
+		get_infile(vars);
+	if (!is_last)
+		dup2(vars->fildes[1], STDOUT_FILENO);
+	else
+	{
+		if (vars->is_heredoc)
+			vars->outfile_fd = open(vars->outfile_name,
+					O_WRONLY | O_APPEND | O_CREAT, 0666);
+		else
+			vars->outfile_fd = open(vars->outfile_name,
+					O_WRONLY | O_TRUNC | O_CREAT, 0666);
+		if (vars->outfile_fd == -1)
+		{
+			close(vars->fildes[0]);
+			close(vars->fildes[1]);
+			close(STDIN_FILENO);
+			perror(vars->outfile_name);
+			exit(EXIT_FAILURE);
+		}
+		dup2(vars->outfile_fd, STDOUT_FILENO);
+		close(vars->outfile_fd);
+	}
+	close(vars->fildes[0]);
+	close(vars->fildes[1]);
+	// ft_putstr_fd("fwefa\n", 2);
+	path = NULL;
+	args = ft_split(command, ' ');
+	if (!args)
+		exit(EXIT_FAILURE);
+	path = get_path(args[0], vars->env);
+	if (path == NULL)
+	{
+		free_matrix(args);
+		exit(127);
+	}
+	execve(path, args, vars->env);
+	perror(args[0]);
+	free(path);
+	free_matrix(args);
+	exit(EXIT_FAILURE);
+}
+
+void	init_pipex(int ac, char ***av, t_vars *vars, char **ev)
 {
 	if (ac < 5 || (!ft_strncmp((*av)[1], "here_doc", ft_strlen("here_doc"))
 			&& ac == 5))
@@ -143,7 +154,6 @@ void	init_pipex(int ac, char ***av, t_vars *vars)
 	if (!ft_strncmp((*av)[1], "here_doc", ft_strlen((*av)[1])))
 	{
 		vars->is_heredoc = 1;
-		vars->infile_name = HEREDOC_LOCATION;
 		vars->delimiter = (*av)[2];
 		(*av)++;
 	}
@@ -153,40 +163,37 @@ void	init_pipex(int ac, char ***av, t_vars *vars)
 		vars->is_heredoc = 0;
 	}
 	vars->commands_nb = ac - 3 - vars->is_heredoc;
-	vars->pids = NULL;
 	(*av)++;
-	get_infile(vars);
+	vars->env = ev;
 }
 
 int	main(int ac, char **av, char **ev)
 {
 	t_vars	vars;
+	int		i;
 
-	init_pipex(ac, &av, &vars);
+	i = 0;
+	init_pipex(ac, &av, &vars, ev);
 	while (*(++av + 1))
 	{
 		if (pipe(vars.fildes) == -1)
-			return (perror("pipe"), EXIT_FAILURE);
-		vars.new = ft_lstnew(NULL, fork());
-		if ((vars.new->n) == 0)
-			exec_child(*av, ev, *(av + 2) == NULL, &vars);
-		if ((vars.new->n) == -1)
+			exit(EXIT_FAILURE);
+		vars.last_pid = fork();
+		if ((vars.last_pid) == -1)
 			return (perror("fork"), EXIT_FAILURE);
+		if ((vars.last_pid) == 0)
+			exec_child(*av, i == 0, *(av + 2) == NULL, &vars);
 		dup2(vars.fildes[0], STDIN_FILENO);
-		if (close(vars.fildes[0]) == -1 || close(vars.fildes[1]) == -1)
-			perror("close");
-		ft_lstadd_back(&vars.pids, vars.new);
+		close(vars.fildes[0]);
+		close(vars.fildes[1]);
+		i++;
 	}
-	while (vars.pids)
+	close(STDIN_FILENO);
+	while (errno != ECHILD)
 	{
-		vars.new = vars.pids->next;
-		waitpid(vars.pids->n, &vars.last_exit_code, 0);
-		if (WIFEXITED(vars.last_exit_code))
-			vars.last_exit_code = WEXITSTATUS(vars.last_exit_code);
-		fprintf(stderr, "%d\n", vars.last_exit_code);
-		free(vars.pids);
-		vars.pids = vars.new;
+		if (wait(&vars.wstatus) == vars.last_pid)
+			if (WIFEXITED(vars.wstatus))
+				vars.last_exit_code = WEXITSTATUS(vars.wstatus);
 	}
-	fprintf(stderr, "zz:%d\n", vars.last_exit_code);
 	return (vars.last_exit_code);
 }
