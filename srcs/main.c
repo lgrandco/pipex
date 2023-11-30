@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: legrandc <legrandc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 11:19:32 by legrandc          #+#    #+#             */
-/*   Updated: 2023/11/28 15:55:55 by leo              ###   ########.fr       */
+/*   Updated: 2023/11/30 10:13:31 by legrandc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	get_infile(t_vars *vars)
 	else
 		vars->infile_fd = open(vars->infile_name, O_RDONLY);
 	if (vars->infile_fd == -1)
-		exit_error(vars->infile_name, vars, 1);
+		exit_error(vars->infile_name, vars, 1, 0);
 	dup2(vars->infile_fd, STDIN_FILENO);
 	close(vars->infile_fd);
 }
@@ -39,7 +39,7 @@ void	get_fds(t_vars *vars, int is_last)
 			vars->outfile_fd = open(vars->outfile_name,
 					O_WRONLY | O_TRUNC | O_CREAT, 0666);
 		if (vars->outfile_fd == -1)
-			exit_error(vars->outfile_name, vars, 1);
+			exit_error(vars->outfile_name, vars, 1, 0);
 		dup2(vars->outfile_fd, STDOUT_FILENO);
 		close(vars->outfile_fd);
 	}
@@ -54,7 +54,7 @@ void	exec_child(char *command, int is_last, t_vars *vars)
 	get_fds(vars, is_last);
 	args = ft_split(command, ' ');
 	if (!args || get_path(args[0], vars) == -1)
-		exit_error("malloc", vars, 0);
+		exit_error("malloc", vars, 0, 0);
 	if (vars->path == NULL)
 	{
 		if (args[0])
@@ -86,6 +86,8 @@ int	wait_commands(t_vars *vars)
 				ret = 128 + WTERMSIG(vars->wstatus);
 		}
 	}
+	if (vars->is_heredoc)
+		close(vars->here_docfd[0]);
 	free_matrix(vars->paths);
 	return (ret);
 }
@@ -98,10 +100,10 @@ int	main(int ac, char **av, char **ev)
 	while (*(++av + 1))
 	{
 		if (pipe(vars.fildes) == -1)
-			exit_error("pipe", &vars, 0);
+			exit_error("pipe", &vars, 0, 1);
 		vars.last_pid = fork();
 		if ((vars.last_pid) == -1)
-			exit_error("fork", &vars, 1);
+			exit_error("fork", &vars, 1, 1);
 		if ((vars.last_pid) == 0)
 			exec_child(*av, *(av + 2) == NULL, &vars);
 		dup2(vars.fildes[0], STDIN_FILENO);

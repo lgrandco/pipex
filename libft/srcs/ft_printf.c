@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: legrandc <legrandc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 14:29:00 by leo               #+#    #+#             */
-/*   Updated: 2023/11/19 04:35:10 by leo              ###   ########.fr       */
+/*   Updated: 2023/11/30 10:26:37 by legrandc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ int	get_spec(t_struct *vars)
 	else if (vars->specifier == '%' && ++vars->percent)
 		vars->string = ft_strdup("%");
 	else if (vars->specifier == 'c')
-		vars->string = ft_strdup((char[]){va_arg(vars->ap, int), 0});
+		vars->string = ft_strdup((char []){va_arg(vars->ap, int), 0});
 	if (!vars->string)
 		return (-1);
 	vars->len = 1;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: legrandc <legrandc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 23:12:51 by leo               #+#    #+#             */
-/*   Updated: 2023/11/28 15:56:19 by leo              ###   ########.fr       */
+/*   Updated: 2023/11/30 10:28:41 by legrandc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,9 @@
 
 # include "libft/libft.h"
 
-# define HERE_DOC_ERR \
-	"warning : here-document delimited by end-of-file \
+# define HERE_DOC_ERR "warning : here-document delimited by end-of-file \
 (wanted `EOF')\n"
-# define ARGS_ERROR \
-	"Usage: ./pipex (INFILE | here_doc LIMITER) cmd1 ... cmdn \
+# define ARGS_ERROR "Usage: ./pipex (INFILE | here_doc LIMITER) cmd1 ... cmdn \
 OUTFILE\n"
 
 typedef struct s_vars
@@ -47,7 +45,7 @@ typedef struct s_vars
 }			t_vars;
 
 /* FUNCTIONS */
-void		exit_error(char *s, t_vars *vars, int flag);
+void		exit_error(char *s, t_vars *vars, int flag, int flag2);
 int			get_path(char *command, t_vars *vars);
 void		write_heredoc(char *eof, int fd);
 void		get_paths(char **ev, t_vars *vars);
