@@ -6,7 +6,7 @@
 /*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 13:08:04 by leo               #+#    #+#             */
-/*   Updated: 2023/11/30 03:44:38 by leo              ###   ########.fr       */
+/*   Updated: 2023/11/30 03:56:57 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ void	get_paths(char **ev, t_vars *vars)
 void	init_pipex(int ac, char ***av, t_vars *vars, char **ev)
 {
 	vars->is_heredoc = BONUS && (*av)[1] && !ft_strcmp((*av)[1], "here_doc");
-	if ((BONUS == 0 && ac != 5) || (BONUS && ac + vars->is_heredoc < 6))
+	if ((BONUS == 0 && ac != 5) || (BONUS && ac < 5 + vars->is_heredoc))
 	{
 		ft_putstr_fd(ARGS_ERROR, STDERR_FILENO);
 		exit(EXIT_FAILURE);
