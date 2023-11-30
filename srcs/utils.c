@@ -6,7 +6,7 @@
 /*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 13:08:04 by leo               #+#    #+#             */
-/*   Updated: 2023/11/28 15:56:33 by leo              ###   ########.fr       */
+/*   Updated: 2023/11/30 03:44:38 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	get_path(char *command, t_vars *vars)
 	char	*tested_path;
 	size_t	i;
 
-	if (!command || *command == '.' || *command == '\n')
+	if (!command || !ft_strcmp(command, "."))
 		return (0);
 	if (ft_strchr(command, '/'))
 		return (vars->path = ft_strdup(command), (vars->path != NULL) - 1);
