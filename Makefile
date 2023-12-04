@@ -26,10 +26,10 @@ $(LIBFT) :
 	make bonus -C $(LIBFT_PATH)
 
 $(NAME) : $(LIBFT) ${OBJ} pipex.h Makefile
-	$(CC) $(CFLAGS) -D BONUS=0 -o $(NAME) -g3 -Ilibft $(SRC) $(LIBFT)
+	$(CC) $(CFLAGS) -o $(NAME) -g3 -Ilibft $(SRC) $(LIBFT)
 
 $(NAME_BONUS) : $(LIBFT) ${OBJ} pipex.h Makefile
-	$(CC) $(CFLAGS) -D BONUS=1 -o $(NAME_BONUS) -g3 -Ilibft $(SRC) $(LIBFT)
+	$(CC) $(CFLAGS) -o $(NAME_BONUS) -g3 -Ilibft $(SRC) $(LIBFT)
 
 bonus: $(NAME_BONUS)
 

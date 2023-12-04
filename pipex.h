@@ -3,24 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: legrandc <legrandc@student.42.fr>          +#+  +:+       +#+        */
+/*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 23:12:51 by leo               #+#    #+#             */
-/*   Updated: 2023/11/30 10:28:41 by legrandc         ###   ########.fr       */
+/*   Updated: 2023/12/04 21:42:29 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PIPEX_H
 # define PIPEX_H
-# ifndef BONUS
-#  define BONUS 1
-# endif
 
 # include "libft/libft.h"
 
 # define HERE_DOC_ERR "warning : here-document delimited by end-of-file \
 (wanted `EOF')\n"
-# define ARGS_ERROR "Usage: ./pipex (INFILE | here_doc LIMITER) cmd1 ... cmdn \
+# define ARGS_ERROR "Usage: ./pipex[_bonus] (INFILE | here_doc LIMITER) cmd1 ... cmdn \
 OUTFILE\n"
 
 typedef struct s_vars

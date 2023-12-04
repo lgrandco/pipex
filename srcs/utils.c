@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: legrandc <legrandc@student.42.fr>          +#+  +:+       +#+        */
+/*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 13:08:04 by leo               #+#    #+#             */
-/*   Updated: 2023/11/30 10:36:06 by legrandc         ###   ########.fr       */
+/*   Updated: 2023/12/04 21:51:46 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,8 +96,12 @@ void	get_paths(char **ev, t_vars *vars)
 
 void	init_pipex(int ac, char ***av, t_vars *vars, char **ev)
 {
-	vars->is_heredoc = (BONUS && !ft_strcmp((*av)[1], "here_doc"));
-	if ((BONUS == 0 && ac != 5) || (BONUS && ac < 5 + vars->is_heredoc))
+	static int	bonus;
+
+	if (ft_strnstr((*av)[0], "_bonus", ft_strlen((*av)[0])))
+		bonus = 1;
+	vars->is_heredoc = (bonus && ac > 1 && !ft_strcmp((*av)[1], "here_doc"));
+	if ((bonus == 0 && ac != 5) || (ac < 5 + vars->is_heredoc))
 	{
 		ft_putstr_fd(ARGS_ERROR, STDERR_FILENO);
 		exit(EXIT_FAILURE);
