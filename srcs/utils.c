@@ -6,7 +6,7 @@
 /*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 13:08:04 by leo               #+#    #+#             */
-/*   Updated: 2023/12/04 21:51:46 by leo              ###   ########.fr       */
+/*   Updated: 2023/12/08 23:03:02 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,16 +92,14 @@ void	get_paths(char **ev, t_vars *vars)
 		ev++;
 		free_matrix(var);
 	}
+	vars->child_exit_code = 127;
 }
 
 void	init_pipex(int ac, char ***av, t_vars *vars, char **ev)
 {
-	static int	bonus;
-
-	if (ft_strnstr((*av)[0], "_bonus", ft_strlen((*av)[0])))
-		bonus = 1;
-	vars->is_heredoc = (bonus && ac > 1 && !ft_strcmp((*av)[1], "here_doc"));
-	if ((bonus == 0 && ac != 5) || (ac < 5 + vars->is_heredoc))
+	vars->B = (ft_strnstr((*av)[0], "_bonus", ft_strlen((*av)[0]))) != NULL;
+	vars->is_heredoc = (vars->B && ac > 1 && !ft_strcmp((*av)[1], "here_doc"));
+	if ((vars->B == 0 && ac != 5) || (ac < 5 + vars->is_heredoc))
 	{
 		ft_putstr_fd(ARGS_ERROR, STDERR_FILENO);
 		exit(EXIT_FAILURE);

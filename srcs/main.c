@@ -6,7 +6,7 @@
 /*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 11:19:32 by legrandc          #+#    #+#             */
-/*   Updated: 2023/12/04 21:52:04 by leo              ###   ########.fr       */
+/*   Updated: 2023/12/08 22:56:42 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,16 +60,19 @@ void	exec_child(char *command, int is_last, t_vars *vars)
 		if (args[0])
 			ft_putstr_fd(args[0], STDERR_FILENO);
 		ft_putstr_fd(": command not found\n", STDERR_FILENO);
-		free_matrix(args);
-		free_matrix(vars->paths);
-		exit(127);
 	}
-	execve(vars->path, args, vars->env);
-	perror(args[0]);
+	else if (access(vars->path, F_OK) == -1 && errno == ENOENT)
+		perror(vars->path);
+	else
+	{
+		execve(vars->path, args, vars->env);
+		perror(vars->path);
+		vars->child_exit_code = 126;
+	}
 	free(vars->path);
 	free_matrix(args);
 	free_matrix(vars->paths);
-	exit(126);
+	exit(vars->child_exit_code);
 }
 
 int	wait_commands(t_vars *vars)

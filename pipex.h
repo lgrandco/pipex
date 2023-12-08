@@ -6,7 +6,7 @@
 /*   By: leo <leo@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 23:12:51 by leo               #+#    #+#             */
-/*   Updated: 2023/12/04 21:42:29 by leo              ###   ########.fr       */
+/*   Updated: 2023/12/08 23:02:38 by leo              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,11 @@
 
 # include "libft/libft.h"
 
-# define HERE_DOC_ERR "warning : here-document delimited by end-of-file \
+# define HERE_DOC_ERR \
+	"warning : here-document delimited by end-of-file \
 (wanted `EOF')\n"
-# define ARGS_ERROR "Usage: ./pipex[_bonus] (INFILE | here_doc LIMITER) cmd1 ... cmdn \
+# define ARGS_ERROR \
+	"Usage: ./pipex[_bonus] (INFILE | here_doc LIMITER) cmd1 ... cmdn \
 OUTFILE\n"
 
 typedef struct s_vars
@@ -38,6 +40,8 @@ typedef struct s_vars
 	int		last_pid;
 	int		is_first;
 	char	**paths;
+	int		child_exit_code;
+	int		B;
 
 }			t_vars;
 
